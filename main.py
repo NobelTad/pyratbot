@@ -19,6 +19,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Hello there, friend!")
     elif msg == "bye":
         await update.message.reply_text("Goodbye or see ya 👋")
+    elif msg =="send":
+
+    	await update.message.reply_text("Here is file for you  👇")
+    	with open("temp/hello.txt", "rb") as f:
+    		await update.message.reply_document(f)
     elif msg == "use":
         await update.message.reply_text("I'm just a test bot 🤖")
     else:
