@@ -61,8 +61,10 @@ def get_ram_info():
 
 def get_disk_info():
     disk_info = "\n==== DISK INFO ===="
-    for part in psutil.disk_partitions():
+    for part in psutil.disk_partitions(all=False):
         try:
+            if not os.path.exists(part.mountpoint):
+                continue  # Skip if mount point doesn't exist
             usage = psutil.disk_usage(part.mountpoint)
             disk_info += f"\n[+] Device: {part.device}"
             disk_info += f"\n    Mountpoint: {part.mountpoint}"
@@ -70,8 +72,8 @@ def get_disk_info():
             disk_info += f"\n    Total Size: {round(usage.total / (1024 ** 3))} GB"
             disk_info += f"\n    Used: {round(usage.used / (1024 ** 3))} GB"
             disk_info += f"\n    Free: {round(usage.free / (1024 ** 3))} GB"
-            disk_info += f"\n    Usage %: {usage.percent}"
-        except PermissionError:
+            disk_info += f"\n    Usage %: {usage.percent}%"
+        except (PermissionError, FileNotFoundError, OSError):
             continue
     return disk_info
 
@@ -125,6 +127,10 @@ def get_battery_info():
 
 def get_temperature_info():
     temperature_info = "\n==== TEMPERATURE INFO ===="
+    if not hasattr(psutil, "sensors_temperatures"):
+        temperature_info += "\n[!] Temperature monitoring not supported on this system."
+        return temperature_info
+
     sensors = psutil.sensors_temperatures()
     if sensors:
         for name, entries in sensors.items():
@@ -133,6 +139,7 @@ def get_temperature_info():
     else:
         temperature_info += "\n[!] No temperature info available"
     return temperature_info
+
 
 def get_system_uptime():
     uptime_seconds = psutil.boot_time()
